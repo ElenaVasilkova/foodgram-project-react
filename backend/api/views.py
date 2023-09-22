@@ -16,7 +16,7 @@ from .pagination import LimitPageNumberPagination
 from .permissions import IsAdminUserOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (FavoriteSubscribeSerializer, IngredientSerializer,
                           RecipeSerializer, SubscribeSerializer, TagSerializer,
-                          UserSerializer, UserSerializer)
+                          UserSerializer)
 from .creatinglist import collect_shopping_list
 
 User = get_user_model()
