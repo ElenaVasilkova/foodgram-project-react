@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from .models import Subscribe, User
 
-
 EMPTY_STRING: str = '-empty-'
 
 admin.site.site_header = 'Site administration Foodgram'

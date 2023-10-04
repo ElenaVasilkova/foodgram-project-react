@@ -1,13 +1,11 @@
 from django.contrib import admin
 
-from .models import (
-    Ingredient,
-    IngredientInRecipe,
-    FavoriteRecipe,
-    Recipe,
-    ShoppingList,
-    Tag
-)
+from .models import (FavoriteRecipe, Ingredient, IngredientInRecipe, Recipe,
+                     ShoppingList, Tag)
+
+EMPTY_STRING: str = '-empty-'
+
+admin.site.site_header = 'Site administration Foodgram'
 
 
 class RecipeIngredientsAdmin(admin.StackedInline):
@@ -32,7 +30,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'author__username',
         'ingredients__title'
     )
-    empty_value_display = '-empty-'
+    empty_value_display = EMPTY_STRING
 
     @admin.display(description='Электронная почта автора')
     def get_author(self, obj):
@@ -78,7 +76,7 @@ class TagAdmin(admin.ModelAdmin):
         'name',
         'slug'
     )
-    empty_value_display = '-empty-'
+    empty_value_display = EMPTY_STRING
 
 
 @admin.register(Ingredient)
@@ -91,7 +89,7 @@ class IngredientAdmin(admin.ModelAdmin):
         'name',
         'measurement_unit'
     )
-    empty_value_display = '-empty-'
+    empty_value_display = EMPTY_STRING
 
 
 @admin.register(FavoriteRecipe)
@@ -103,7 +101,7 @@ class FavoriteRecipeAdmin(admin.ModelAdmin):
     )
     list_filter = ('recipe',)
     search_fields = ('recipe',)
-    empty_value_display = '-empty-'
+    empty_value_display = EMPTY_STRING
 
 
 @admin.register(ShoppingList)
@@ -115,4 +113,4 @@ class ShoppingListAdmin(admin.ModelAdmin):
     )
     list_filter = ('recipe',)
     search_fields = ('recipe',)
-    empty_value_display = '-empty-'
+    empty_value_display = EMPTY_STRING

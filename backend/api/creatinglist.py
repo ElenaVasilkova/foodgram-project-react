@@ -4,8 +4,9 @@ from recipes.models import ShoppingList
 
 
 def collect_shopping_list(request):
-    """
-    Создание списка покупок.
+    """ Создание списка покупок.
+    Позволяет пользователям получать список покупок в виде TXT файла,
+    где все ингредиенты будут суммированы.
     """
     shopping_list = ShoppingList.objects.filter(user=request.user).all()
     shopping_list = {}
@@ -27,8 +28,8 @@ def collect_shopping_list(request):
          f'- {item["amount"]}\n'
          for item in shopping_list.values()]
     )
-    filename = 'shopping_list.txt'
-    response = HttpResponse(content, content_type='text/plain')
+    filename = 'shopping_cart.txt'
+    response = HttpResponse(content, content_type='text/plain; charset=utf-8')
     response['Content-Disposition'] = (
         f'attachment; filename={0}'.format(filename)
     )

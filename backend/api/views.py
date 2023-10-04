@@ -11,22 +11,22 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from users.models import Subscribe
 
+from .creatinglist import collect_shopping_list
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import LimitPageNumberPagination
 from .permissions import IsAdminUserOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (FavoriteSubscribeSerializer, IngredientSerializer,
                           RecipeSerializer, SubscribeSerializer, TagSerializer,
                           UserSerializer)
-from .creatinglist import collect_shopping_list
 
 User = get_user_model()
 
 
 @api_view(['post'])
 def set_password(request):
-    """
-    Изменить пароль.
-    """
+    """Функция-обработчик для эндпоинта /users/set_password/.
+        Позволяет пользователям изменить пароль.
+        """
     serializer = UserSerializer(
         data=request.data,
         context={'request': request})
@@ -41,9 +41,7 @@ def set_password(request):
 
 
 class UserViewSet(DjoserUserViewSet):
-    """
-    Пользователи и подписки.
-    """
+    """Вьюсет для работы с пользователями"""
     queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
@@ -52,8 +50,9 @@ class UserViewSet(DjoserUserViewSet):
 
     @action(methods=['POST', 'DELETE'], detail=True,)
     def subscribe(self, request, id):
-        """
-        Подписаться / отписаться.
+        """Функция-обработчик для эндпоинта /users/<id>/subscribe/.
+        Позволяет пользователям подписываться или отписываться
+        от обновлений других пользователей.
         """
         author = get_object_or_404(User, id=id)
         if request.method == 'POST':
@@ -84,9 +83,8 @@ class UserViewSet(DjoserUserViewSet):
             permission_classes=(IsAuthenticated, )
             )
     def subscriptions(self, request):
-        """
-        Получить подписки.
-        """
+        """Функция-обработчик для эндпоинта /users/subscriptions/.
+        Просмотр подписок ползователя."""
         serializer = SubscribeSerializer(
             self.paginate_queryset(Subscribe.objects.filter(
                                    user=request.user)),
@@ -95,9 +93,7 @@ class UserViewSet(DjoserUserViewSet):
 
 
 class TagsViewSet(ReadOnlyModelViewSet):
-    """
-    Список тегов.
-    """
+    """Вьюсет для работы с тегами."""
     queryset = Tag.objects.all()
     permission_classes = (IsAdminUserOrReadOnly,)
     serializer_class = TagSerializer
@@ -105,9 +101,7 @@ class TagsViewSet(ReadOnlyModelViewSet):
 
 
 class IngredientsViewSet(ReadOnlyModelViewSet):
-    """
-    Список ингридиентов.
-    """
+    """Вьюсет для работы с ингредиентами."""
     queryset = Ingredient.objects.all()
     permission_classes = (IsAdminUserOrReadOnly,)
     serializer_class = IngredientSerializer
@@ -117,9 +111,7 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
-    """
-    Список рецептов.
-    """
+    """Вьюсет для работы с рецептами."""
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = LimitPageNumberPagination
@@ -147,21 +139,29 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['POST', 'DELETE'],
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk=None):
-        """
-        Добавить рецепт в избранное или удалить из него.
-        """
+        """Функция-обработчик для эндпоинта /recipes/<id>/favorite/.
+        Добавить рецепт в избранное или удалить из него."""
         if request.method == 'POST':
             return self.new_favorite_or_cart(FavoriteRecipe,
                                              request.user, pk)
         return self.remove_favorite_or_cart(FavoriteRecipe,
                                             request.user, pk)
 
+
+class ShoppinglistViewSet(viewsets.ModelViewSet):
+    """Список ингредиентов из рецептов."""
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+    pagination_class = LimitPageNumberPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
+    permission_classes = (IsOwnerOrReadOnly, )
+
     @action(detail=True, methods=['POST', 'DELETE'],
             permission_classes=[IsAuthenticated])
-    def shopping_list(self, request, pk=None):
-        """
-        Добавить рецепт в список покупок или удалить из него.
-        """
+    def shopping_cart(self, request, pk=None):
+        """Функция-обработчик для эндпоинта /recipes/<id>/shopping_cart/.
+        Добавить рецепт в список покупок или удалить из него."""
         if request.method == 'POST':
             return self.new_favorite_or_cart(ShoppingList, request.user, pk)
         return self.remove_favorite_or_cart(ShoppingList, request.user, pk)
@@ -169,9 +169,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'],
             permission_classes=(IsAuthenticated,))
     def download_shopping_list(self, request):
-        """
-        Скачать список покупок.
-        """
+        """Функция-обработчик для эндпоинта
+        /recipes/<id>/download_shopping_cart/.
+        Позволяет пользователям скачать список покупок."""
         user = request.user
         if not user.shopping_cart.exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)

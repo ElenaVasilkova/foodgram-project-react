@@ -10,7 +10,7 @@ def validate_username(value):
     """Функция-валидатор проверяет корректность username."""
     if value.lower() == "me":
         raise ValidationError(
-            "Имя 'me' не разрешено для использования."
+            'Имя "me" не разрешено для использования.'
         )
     if re.search(r'^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$', value) is None:
         raise ValidationError(

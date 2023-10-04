@@ -3,11 +3,13 @@ from django.db import models
 
 from .validators import validate_username
 
+USER = 'user'
+ADMIN = 'admin'
+
 
 class User(AbstractUser):
-    """
-    Полнофункциональная модель пользователя.
-    """
+    """Полнофункциональная модель пользователя."""
+    ROLES = ((USER, USER), (ADMIN, ADMIN))
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
@@ -42,14 +44,6 @@ class User(AbstractUser):
         help_text='Введите фамилию'
     )
 
-    @property
-    def is_admin(self):
-        return self.is_staff or self.is_superuser
-
-    @property
-    def is_user(self):
-        return self.is_user
-
     class Meta:
         ordering = ('username',)
         verbose_name = 'Пользователь'
@@ -58,11 +52,17 @@ class User(AbstractUser):
     def __str__(self):
         return f'@{self.username}: {self.email}.'
 
+    @property
+    def is_admin(self):
+        return self.is_staff or self.is_superuser
+
+    @property
+    def is_user(self):
+        return self.is_user
+
 
 class Subscribe(models.Model):
-    """
-    Модель Подписка.
-    """
+    """Модель связи пользователя и автора для реализации системы подписок."""
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
