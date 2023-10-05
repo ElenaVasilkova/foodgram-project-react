@@ -111,7 +111,7 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
-    """Вьюсет для работы с рецептами."""
+    """Вьюсет для списка рецептов."""
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = LimitPageNumberPagination
@@ -121,6 +121,16 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,)
+
+
+class FavoriteRecipeViewSet(viewsets.ModelViewSet):
+    """Вьюсет для списка избранного."""
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
+    pagination_class = LimitPageNumberPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
+    permission_classes = (IsOwnerOrReadOnly, )
 
     def new_favorite_or_list(self, model, user, pk):
         recipe = get_object_or_404(Recipe, id=pk)
