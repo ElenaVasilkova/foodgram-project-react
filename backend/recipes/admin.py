@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import (FavoriteRecipe, Ingredient, IngredientInRecipe, Recipe,
+from .models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                      ShoppingList, Tag)
 
 EMPTY_STRING: str = '-empty-'
@@ -18,17 +18,17 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientsAdmin,)
     list_display = (
         'author',
-        'title',
+        'name',
         'text',
         'get_favorite_count'
     )
-    list_editable = ('title',)
-    list_filter = ('author', 'title', 'tags',)
+    list_editable = ('name',)
+    list_filter = ('author', 'name', 'tags',)
     search_fields = (
-        'title',
+        'name',
         'cooking_time',
         'author__username',
-        'ingredients__title'
+        'ingredients__name'
     )
     empty_value_display = EMPTY_STRING
 
@@ -54,6 +54,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     @admin.display(description='В избранном')
     def get_favorite_count(self, obj):
+        """Подсчитывает сколько раз рецепт добавлен в избранное."""
         return obj.favorites.count()
 
 
@@ -92,8 +93,8 @@ class IngredientAdmin(admin.ModelAdmin):
     empty_value_display = EMPTY_STRING
 
 
-@admin.register(FavoriteRecipe)
-class FavoriteRecipeAdmin(admin.ModelAdmin):
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
     ordering = ('user',)
     search_fields = (
         'recipe',

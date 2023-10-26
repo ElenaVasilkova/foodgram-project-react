@@ -17,8 +17,6 @@ class User(AbstractUser):
         validators=(validate_username,),
         max_length=150,
         unique=True,
-        blank=False,
-        null=False,
         verbose_name='Имя пользователя',
         help_text='Введите имя пользователя'
     )
@@ -26,20 +24,16 @@ class User(AbstractUser):
         max_length=254,
         unique=True,
         db_index=True,
-        blank=False,
-        null=False,
         verbose_name='Адрес электронной почты',
         help_text='Введите адрес электронной почты'
     )
     first_name = models.CharField(
         max_length=150,
-        blank=True,
         verbose_name='Имя',
         help_text='Введите имя'
     )
     last_name = models.CharField(
         max_length=150,
-        blank=True,
         verbose_name='Фамилия',
         help_text='Введите фамилию'
     )
@@ -73,22 +67,24 @@ class Subscribe(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='subscribing',
-        verbose_name='Автор'
+        verbose_name='Автор рецепта'
     )
     created = models.DateTimeField(
-        'Дата подписки',
+        'Дата создания подписки',
         auto_now_add=True)
 
     class Meta:
-        verbose_name = 'Подписчик'
-        verbose_name_plural = 'Подписчики'
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
         ordering = ['-id']
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
-                name='unique_subscribing')
+                name='\nRepeat subscription\n'),
+            models.CheckConstraint(
+                check=~models.Q(author=models.F('user')),
+                name='\nNo self sibscription\n'),
         ]
 
     def __str__(self):
-        return (f'Пользователь {self.user} '
-                f'подписан на {self.author}')
+        return f'{self.user.username} -> {self.author.username}'

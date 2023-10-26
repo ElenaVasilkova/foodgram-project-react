@@ -8,7 +8,7 @@ admin.site.site_header = 'Site administration Foodgram'
 
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class MyUserAdmin(admin.ModelAdmin):
     list_display = (
         'username',
         'first_name',

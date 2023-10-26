@@ -66,7 +66,7 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Автор рецепта'
     )
-    title = models.CharField(
+    name = models.CharField(
         verbose_name='Название рецепта',
         max_length=100
     )
@@ -166,7 +166,7 @@ class RecipeUserList(models.Model):
         ordering = ('user', 'recipe')
 
 
-class FavoriteRecipe(RecipeUserList):
+class Favorite(RecipeUserList):
     """Модель для добавления рецептов в избранное."""
     class Meta(RecipeUserList.Meta):
         default_related_name = 'favorites'

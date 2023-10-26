@@ -7,7 +7,7 @@ import sentry_sdk
 from pathlib import Path
 from sentry_sdk.integrations.django import DjangoIntegration
 
-DEFAULT_PAGE_SIZE: int = 10
+DEFAULT_PAGE_SIZE: int = 6
 
 sentry_sdk.init(
     dsn=os.getenv('sentry_sdk_keys'),
@@ -22,11 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'None')
 
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'True'
+# DEBUG = os.getenv('DEBUG', 'False').lower() == 'True'
+DEBUG = True
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-
-# CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(',')
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -79,8 +78,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram_backend.wsgi.application'
 
-'''
-DATABASES = {
+'''DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DB', 'django'),
@@ -156,6 +154,8 @@ REST_FRAMEWORK = {
 DJOSER = {
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
-    'SERIALIZERS': {'user': 'api.serializers.UserSerializer'},
+    'SERIALIZERS': {'user': 'api.serializers.UserSerializer',
+                    'current_user': 'api.serializers.UserSerializer'},
     'PERMISSIONS': {'user': ['rest_framework.permissions.IsAuthenticated'],
-                    'user_list': ['rest_framework.permissions.AllowAny']}}
+                    'user_list': ['rest_framework.permissions.AllowAny']}
+}

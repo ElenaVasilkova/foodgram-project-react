@@ -4,8 +4,9 @@ from django.shortcuts import get_object_or_404
 from djoser.serializers import UserSerializer as UserHandleSerializer
 from rest_framework import serializers, validators
 
-from recipes.models import (FavoriteRecipe, Ingredient, IngredientInRecipe,
-                            Recipe, ShoppingList, Tag)
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                            ShoppingList, Tag)
+
 from users.models import Subscribe
 
 from .imagefield import Base64ImageField
@@ -30,7 +31,12 @@ class UserSerializer(UserHandleSerializer):
             'is_subscribed'
         )
 
-    def get_is_subscribed(self, obj):
+    def create(self, validated_data):
+        """Создает нового пользователя."""
+        user = User.objects.create_user(**validated_data)
+        return user
+
+    def get_is_subscribed(self, author):
         """
         Проверка подписки.
         """
@@ -38,7 +44,7 @@ class UserSerializer(UserHandleSerializer):
         if user.is_anonymous:
             return False
         return Subscribe.objects.filter(
-            user=user, author=obj.id).exists()
+            user=user, author=author).exists()
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -86,7 +92,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
     recipes_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        model = Subscribe
+        model = User
         fields = (
             'id',
             'email',
@@ -140,21 +146,22 @@ class SubscribeSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
-    """Сериализатор для ингредиента."""
+    """Сериализатор для модели ингредиентов."""
     class Meta:
         model = Ingredient
-        fields = '__all__'
+        fields = ['id', 'name', 'measurement_unit']
+        read_only_fields = ['id', 'name', 'measurement_unit']
 
 
 class TagSerializer(serializers.ModelSerializer):
-    """Сериализатор для тега."""
+    """Сериализатор для вывода тегов."""
     class Meta:
         model = Tag
-        fields = '__all__'
+        fields = ['id', 'name', 'color', 'slug']
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    """Сериализатор модели IngredientInRecipe."""
+    """Сериализатор для записи ингредиента и количества в рецепт."""
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
@@ -173,21 +180,16 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор рецепта."""
-    tags = TagSerializer(
-        read_only=True,
-        many=True
-    )
+    tags = TagSerializer(read_only=True, many=True)
     image = Base64ImageField()
-    author = UserSerializer(
-        read_only=True
-    )
+    author = UserSerializer(read_only=True)
     cooking_time = serializers.IntegerField()
     ingredients = IngredientInRecipeSerializer(
         many=True, read_only=True,
-        source='recipe_ingredients'
+        source='ingredient_in_recipe'
     )
     is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_list = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -201,7 +203,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'text',
             'cooking_time',
             'is_favorited',
-            'is_in_shopping_list')
+            'is_in_shopping_cart')
 
     @staticmethod
     def __create_ingredients(recipe, ingredients):
@@ -247,10 +249,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return FavoriteRecipe.objects.filter(recipe=obj,
-                                             user=user).exists()
+        return Favorite.objects.filter(recipe=obj, user=user).exists()
 
-    def get_is_in_shopping_list(self, obj):
+    def get_is_in_shopping_cart(self, obj):
         """Проверка списка покупок."""
         user = self.context.get('request').user
         if not user or user.is_anonymous:
