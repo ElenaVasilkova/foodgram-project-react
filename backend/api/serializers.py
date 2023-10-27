@@ -181,7 +181,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор рецепта."""
     tags = TagSerializer(read_only=True, many=True)
-    image = Base64ImageField()
+    image = Base64ImageField(max_length=None)
     author = UserSerializer(read_only=True)
     cooking_time = serializers.IntegerField()
     ingredients = IngredientInRecipeSerializer(
@@ -204,6 +204,57 @@ class RecipeSerializer(serializers.ModelSerializer):
             'cooking_time',
             'is_favorited',
             'is_in_shopping_cart')
+
+    def validate(self, data):
+        """Проверка данных на уровне сериализатора."""
+        ingredients = data.get('ingredients')
+        if not ingredients:
+            raise serializers.ValidationError(
+                'Добавьте минимум один ингредиент для рецепта.'
+            )
+        added_ingredients = []
+        for ingredient in ingredients:
+            print(ingredient)
+            try:
+                Ingredient.objects.get(
+                    id=ingredient['id']
+                )
+            except Exception:
+                raise serializers.ValidationError(
+                    'Ингредиент не существует'
+                )
+            if int(ingredient['amount']) <= 0:
+                raise serializers.ValidationError(
+                    'Количество ингредиента с id {0} должно '
+                    'быть целым и больше 0.'.format(ingredient['id'])
+                )
+
+            if ingredient['id'] in added_ingredients:
+                raise serializers.ValidationError(
+                    'Такой ингридиент уже добавлен.'
+                )
+            added_ingredients.append(ingredient['id'])
+        if int(ingredient['amount']) < 1:
+            raise serializers.ValidationError(
+                'Добавьте минимум один ингредиент для рецепта.'
+            )
+
+        '''tags_count = Tag.objects.count()
+        if not data or len(data) > tags_count:
+            raise serializers.ValidationError(
+                f'Количество тегов должно быть от 1 до {tags_count}.'
+            )'''
+        tags = data.get('tags')
+        if len(tags) > len(set(tags)):
+            raise serializers.ValidationError('Тег уже используется.')
+
+        cooking_time = float(data.get('cooking_time'))
+        if cooking_time < 1:
+            raise serializers.ValidationError(
+                'Время приготовления должно быть не меньше 1 минуты.')
+        data['ingredients'] = ingredients
+        data['tags'] = tags
+        return data
 
     @staticmethod
     def __create_ingredients(recipe, ingredients):
@@ -237,8 +288,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         return instance
 
     def to_internal_value(self, data):
-        ingredients = data.pop('ingredients')
-        tags = data.pop('tags')
+        # print(self)
+        ingredients = data.get('ingredients')
+        tags = data.get('tags')
         data = super().to_internal_value(data)
         data['tags'] = tags
         data['ingredients'] = ingredients
@@ -258,36 +310,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             return False
         return ShoppingList.objects.filter(recipe=obj,
                                            user=user).exists()
-
-    def validate(self, data):
-        """Проверка данных на уровне сериализатора."""
-        ingredients = data.get('ingredients')
-        if not ingredients:
-            raise serializers.ValidationError(
-                'Добавьте минимум один ингредиент для рецепта.'
-            )
-        added_ingredients = []
-        for ingredient in ingredients:
-            if int(ingredient['amount']) <= 0:
-                raise serializers.ValidationError(
-                    'Количество ингредиента с id {0} должно '
-                    'быть целым и больше 0.'.format(ingredient['id'])
-                )
-            if ingredient['id'] in added_ingredients:
-                raise serializers.ValidationError(
-                    'Такой ингридиент уже добавлен.'
-                )
-            added_ingredients.append(ingredient['id'])
-        tags = data.get('tags')
-        if len(tags) > len(set(tags)):
-            raise serializers.ValidationError('Тег уже используется.')
-        cooking_time = float(data.get('cooking_time'))
-        if cooking_time < 1:
-            raise serializers.ValidationError(
-                'Время приготовления должно быть не меньше 1 минуты.')
-        data['ingredients'] = ingredients
-        data['tags'] = tags
-        return data
 
 
 class FavoriteSubscribeSerializer(serializers.ModelSerializer):

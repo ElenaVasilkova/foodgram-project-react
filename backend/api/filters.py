@@ -15,6 +15,12 @@ class RecipeFilter(filters.FilterSet):
     """
     Фильтр для Рецепта.
     """
+    class Meta:
+        model = Recipe
+        fields = (
+            'author',
+            'tags')
+
     tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
     is_favorited = filters.BooleanFilter(
         field_name='is_favorited',
@@ -24,15 +30,13 @@ class RecipeFilter(filters.FilterSet):
         method='get_filter_is_in_shopping_cart')
 
     def get_filter_is_favorited(self, queryset, name, value):
+        """Фильтр для избранного"""
         if value and self.request.user.is_authenticated:
             return queryset.filter(favorites__user=self.request.user)
         return queryset
 
     def get_filter_is_in_shopping_cart(self, queryset, name, value):
+        """Фильтр для списка покупок"""
         if value and self.request.user.is_authenticated:
             return queryset.filter(shopping_cart__user=self.request.user)
         return queryset
-
-    class Meta:
-        model = Recipe
-        fields = ('author', 'tags', 'is_favorited', 'is_in_shopping_cart')
