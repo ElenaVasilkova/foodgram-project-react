@@ -214,19 +214,18 @@ class RecipeSerializer(serializers.ModelSerializer):
             )
         added_ingredients = []
         for ingredient in ingredients:
-            print(ingredient)
             try:
                 Ingredient.objects.get(
                     id=ingredient['id']
                 )
             except Exception:
                 raise serializers.ValidationError(
-                    'Ингредиент не существует'
+                    'Указанного ингредиента не существует'
                 )
             if int(ingredient['amount']) <= 0:
                 raise serializers.ValidationError(
-                    'Количество ингредиента с id {0} должно '
-                    'быть целым и больше 0.'.format(ingredient['id'])
+                    'Количество ингредиента должно '
+                    'быть больше 0.'
                 )
 
             if ingredient['id'] in added_ingredients:
@@ -239,12 +238,16 @@ class RecipeSerializer(serializers.ModelSerializer):
                 'Добавьте минимум один ингредиент для рецепта.'
             )
 
-        '''tags_count = Tag.objects.count()
-        if not data or len(data) > tags_count:
-            raise serializers.ValidationError(
-                f'Количество тегов должно быть от 1 до {tags_count}.'
-            )'''
         tags = data.get('tags')
+        if not tags:
+            raise serializers.ValidationError(
+                'Необходимо выбрать тег.')
+        for tag in tags:
+            all_tags = Tag.objects.all().values_list('id', flat=True)
+            if not set(tags).issubset(all_tags):
+                raise serializers.ValidationError(
+                    f'Тега {tag} не существует')
+
         if len(tags) > len(set(tags)):
             raise serializers.ValidationError('Тег уже используется.')
 
@@ -288,7 +291,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         return instance
 
     def to_internal_value(self, data):
-        # print(self)
         ingredients = data.get('ingredients')
         tags = data.get('tags')
         data = super().to_internal_value(data)
