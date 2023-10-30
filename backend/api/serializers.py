@@ -104,6 +104,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
             'recipes_count'
         )
         read_only_fields = (
+            'email',
             'is_subscribed',
             'recipes_count'
         )
@@ -332,3 +333,41 @@ class FavoriteSubscribeSerializer(serializers.ModelSerializer):
             'image',
             'cooking_time'
         )
+
+
+class ShoppingCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShoppingList
+        fields = ['user', 'recipe']
+
+    def validate(self, data):
+        user = data['user']
+        if user.shopping_cart.filter(recipe=data['recipe']).exists():
+            raise serializers.ValidationError(
+                'Recipe already added to cart'
+            )
+        return data
+
+    def to_representation(self, instance):
+        return FavoriteSubscribeSerializer(instance.recipe, context={
+            'request': self.context.get('request')
+        }).data
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = ['user', 'recipe']
+
+    def validate(self, data):
+        user = data['user']
+        if user.favorite.filter(recipe=data['recipe']).exists():
+            raise serializers.ValidationError(
+                'The recipe has already been added to favorites'
+            )
+        return data
+
+    def to_representation(self, instance):
+        return FavoriteSerializer(instance.recipe, context={
+            'request': self.context.get('request')
+        }).data

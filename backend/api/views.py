@@ -66,28 +66,11 @@ class SubscribeViewSet(DjoserUserViewSet):
     def get_permissions(self):
         """Дает доступ к определенным эндпоинтам только аутентифицированным
         пользователям и разрешает метод delete только для своих подписок."""
-
         if self.request.method == 'DELETE':
             return (IsSubscribeOnly(),)
-        if self.action in ['subscriptions', 'subscribe']:
+        if self.action in ['me', 'subscriptions', 'subscribe']:
             return (IsAuthenticated(),)
         return (AllowAny(),)
-
-    @action(methods=['GET'],
-            detail=False,
-            # permission_classes=(IsAuthenticated, )
-            )
-    def subscriptions(self, request):
-        """Функция-обработчик для эндпоинта /users/subscriptions/.
-        Просмотр подписок ползователя."""
-
-        user = self.request.user
-        user_subscribing = User.objects.filter(subscribing__user=user)
-        page = self.paginate_queryset(user_subscribing)
-        serializer = SubscribeSerializer(
-            page, context={'request': request}, many=True
-        )
-        return self.get_paginated_response(serializer.data)
 
     @action(methods=['POST', 'DELETE'], detail=True,)
     def subscribe(self, request, id):
@@ -98,30 +81,60 @@ class SubscribeViewSet(DjoserUserViewSet):
         """
         user = request.user
         author = get_object_or_404(User, id=id)
+        print(author)
+
         if request.method == 'POST':
+            print(author)
+            serializer = SubscribeSerializer(
+                author,
+                data=request.data,
+                context={'request': request})
+            serializer.is_valid(raise_exception=True)
+
             if user == author:
                 return Response({
                     'errors': 'Нельзя подписаться на самого себя'
                 }, status=status.HTTP_400_BAD_REQUEST)
-            serializer = SubscribeSerializer(
-                Subscribe.objects.create(user=user,
-                                         author=author),
-                context={'request': request})
+
+            if Subscribe.objects.filter(user=user, author=author).exists():
+                return Response({
+                    'errors': 'Вы уже подписаны на данного пользователя'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            subscribe = Subscribe.objects.create(user=user, author=author),
+
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED)
+
         if request.method == 'DELETE':
-            if Subscribe.objects.filter(user=user,
-                                        author=author
-                                        ).exists():
-                Subscribe.objects.filter(user=user,
-                                         author=author
-                                         ).delete()
+            if user == author:
+                return Response({
+                    'errors': 'Нельзя отписаться от самого себя'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            subscribe = Subscribe.objects.filter(user=user, author=author),
+            if subscribe.exists():
+                subscribe.delete()
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(
                 {'errors': 'Нельзя отписаться от автора, '
                  'на которго не подписан!'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    @action(methods=['GET'],
+            detail=False,
+            permission_classes=(IsAuthenticated,)
+            )
+    def subscriptions(self, request):
+        """Функция-обработчик для эндпоинта /users/subscriptions/.
+        Просмотр подписок ползователя."""
+        user = self.request.user
+        user_subscribing = Subscribe.objects.filter(subscribing__user=user)
+        page = self.paginate_queryset(user_subscribing)
+        serializer = SubscribeSerializer(
+            page, context={'request': request}, many=True
+        )
+        return self.get_paginated_response(serializer.data)
 
 
 class TagsViewSet(ReadOnlyModelViewSet):
@@ -149,7 +162,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     pagination_class = LimitPageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    permission_classes = (IsOwnerOrReadOnly, )
+    permission_classes = (IsOwnerOrReadOnly, IsAdminUserOrReadOnly)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,)
@@ -169,7 +182,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['POST', 'DELETE'],
-            permission_classes=[IsAuthenticated])
+            permission_classes=[IsAuthenticated,])
     def favorite(self, request, pk=None):
         """Функция-обработчик для эндпоинта /recipes/<id>/favorite/.
         Добавить рецепт в избранное или удалить из него."""
@@ -187,7 +200,7 @@ class ShoppingcartViewSet(viewsets.ModelViewSet):
     pagination_class = LimitPageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    permission_classes = (IsOwnerOrReadOnly, )
+    permission_classes = (IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,)
