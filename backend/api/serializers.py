@@ -125,8 +125,6 @@ class SubscribeSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         """Проверка подписки."""
         user = self.context.get('request').user
-        print(user)
-        print(obj)
         return Subscribe.objects.filter(
             user=user, author=obj).exists()
 
