@@ -25,8 +25,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'None')
 # DEBUG = os.getenv('DEBUG', 'False').lower() == 'True'
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-
+# ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(', ')
+ALLOWED_HOSTS = ['127.0.0.1']
 AUTH_USER_MODEL = 'users.User'
 
 INSTALLED_APPS = [
