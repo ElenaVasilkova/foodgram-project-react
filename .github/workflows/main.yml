@@ -6,7 +6,7 @@ on:
       - main
 
 env: 
-  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  SECRET_KEY: ${{ '%_)1g45*ekw^yofb96hcdt$m#wxc4#jm-njh91ysk6d6o2aea)' }}
 
 jobs:
   checkout-and-print-tree:
