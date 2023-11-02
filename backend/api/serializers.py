@@ -1,11 +1,9 @@
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.hashers import make_password
 from djoser.serializers import UserSerializer as UserHandleSerializer
-from rest_framework import serializers, validators
-
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingList, Tag)
-
+from rest_framework import serializers, validators
 from users.models import Subscribe
 
 from .imagefield import Base64ImageField

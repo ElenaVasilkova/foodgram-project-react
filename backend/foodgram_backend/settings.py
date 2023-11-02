@@ -1,10 +1,10 @@
 """
 FoodGram Project
 """
-
 import os
-import sentry_sdk
 from pathlib import Path
+
+import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
 DEFAULT_PAGE_SIZE: int = 6
