@@ -18,5 +18,3 @@ jobs:
 
       - name: Print project tree
         run: tree .
-
-  
