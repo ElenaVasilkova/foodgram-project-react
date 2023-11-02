@@ -59,7 +59,7 @@ class SubscribePostDeleteViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     search_fields = ('username', 'email')
     pagination_class = LimitPageNumberPagination
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsOwnerOrReadOnly,)
     http_method_names = ['post', 'delete',]
 
     def create(self, request, author_id):
@@ -117,7 +117,7 @@ class SubscribeListViewSet(mixins.ListModelMixin,
     filter_backends = (DjangoFilterBackend, filters.SearchFilter,)
     search_fields = ('username', 'email')
     pagination_class = LimitPageNumberPagination
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsOwnerOrReadOnly,)
     http_method_names = ['get', 'head']
 
     def list(self, request):
@@ -170,7 +170,7 @@ class FavoriteRecipeViewSet(RecipesViewSet):
     queryset = Recipe.objects.all()
     serializer_class = FavoriteSubscribeSerializer
     http_method_names = ['post', 'delete',]
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,)
@@ -211,7 +211,7 @@ class ShoppingcartViewSet(RecipesViewSet):
     pagination_class = LimitPageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    permission_classes = (IsOwnerOrReadOnly, IsAuthenticated,)
+    permission_classes = (IsOwnerOrReadOnly,)
     http_method_names = ['post', 'delete',]
 
     def create(self, request, recipe_id):
@@ -239,7 +239,7 @@ class ShoppingcartViewSet(RecipesViewSet):
                         status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['GET'],
-            permission_classes=(IsAuthenticated,))
+            permission_classes=(IsOwnerOrReadOnly,))
     def download_shopping_cart(self, request):
         """Функция-обработчик для эндпоинта
         /recipes/<id>/download_shopping_cart/.

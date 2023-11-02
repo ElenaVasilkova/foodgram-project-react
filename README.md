@@ -56,16 +56,25 @@ docker-compose up -d --build
 - Выполните миграции, соберите статические файлы, создайте суперпользователя
 ```bash
 docker-compose exec backend python manage.py migrate
+```
+```bash
 docker-compose exec backend python manage.py collectstatic --no-input
+```
+```bash
 docker-compose exec backend python manage.py createsuperuser
 ```
 - Наполните базу данных ингредиентами и тегами
 ```bash
 docker-compose exec backend python manage.py load_ingredients
 ```
+```bash
+docker-compose exec backend python manage.py load_tags
+```
 
 - Стандартная админ-панель Django доступна по адресу [`https://localhost/admin/`](https://localhost/admin/)
 - Документация к проекту доступна по адресу [`https://localhost/api/docs/`](`https://localhost/api/docs/`)
+
+---
 
 #### Запуск API проекта в dev-режиме
 
@@ -92,3 +101,10 @@ python manage.py load_ingredients
 ```bash
 python manage.py runserver
 ```
+
+---
+
+## Об авторе
+
+Василькова Елена Алексеевна   
+Telegram: @Vasilkova_Elena_A
