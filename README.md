@@ -34,7 +34,7 @@ DB_PORT=5432
 
 SECRET_KEY='your_secret_key'
 DEBUG=False
-ALLOWED_HOSTS=127.0.0.1, localhost, server_ip, your_host
+ALLOWED_HOSTS=127.0.0.1,localhost,server_ip,your_host
 ```
 - Для работы с Workflow добавьте в Secrets GitHub переменные окружения, в репозитории проекта перейти в раздел settings/secrets/actions и создайте Actions secrets and variables по шаблону:
 ```
