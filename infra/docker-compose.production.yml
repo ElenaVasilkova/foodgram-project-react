@@ -40,8 +40,8 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - static:/staticfiles/
-      - media:/media
+      - static:/etc/nginx/html/static/
+      - media:/etc/nginx/html/media/
     depends_on:
       - backend
       - frontend
