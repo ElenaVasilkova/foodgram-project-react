@@ -161,7 +161,7 @@ jobs:
 
           echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(${{ secrets.DJANGO_ADM_EMAIL }}, ${{ secrets.DJANGO_ADM_USERNAME }}, ${{ secrets.DJANGO_ADM_FNAME }}, ${{ secrets.DJANGO_ADM_SNAME }}, ${{ secrets.DJANGO_ADM_PASSWORD }})" | python manage.py shell
           sudo docker compose -f docker-compose.production.yml exec -T backend python manage.py load_tags
-          sudo docker compose -f docker-compose.production.yml exec -T backend python manage.py load_data
+          sudo docker compose -f docker-compose.production.yml exec -T backend python manage.py load_ingredients
   
   send_message:
     runs-on: ubuntu-latest
