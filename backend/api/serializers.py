@@ -218,11 +218,11 @@ class RecipeSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     'Указанного ингредиента не существует'
                 )
-            if int(ingredient['amount']) <= 0:
+            ''' if int(ingredient['amount']) <= 0:
                 raise serializers.ValidationError(
                     'Количество ингредиента должно '
                     'быть больше 0.'
-                )
+                )'''
 
             if ingredient['id'] in added_ingredients:
                 raise serializers.ValidationError(
