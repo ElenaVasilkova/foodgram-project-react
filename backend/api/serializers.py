@@ -201,7 +201,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'is_favorited',
             'is_in_shopping_cart')
 
-    def validate(self, data):
+    def validate_ingredient(self, data):
         """Проверка данных на уровне сериализатора."""
         ingredients = data.get('ingredients')
         '''if not ingredients:
@@ -233,7 +233,10 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Добавьте минимум один ингредиент для рецепта.'
             )
+        data['ingredients'] = ingredients
+        return data
 
+    def validate_tags(self, data):
         tags = data.get('tags')
         if not tags:
             raise serializers.ValidationError(
@@ -251,7 +254,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         if cooking_time < 1:
             raise serializers.ValidationError(
                 'Время приготовления должно быть не меньше 1 минуты.')
-        data['ingredients'] = ingredients
         data['tags'] = tags
         return data
 
