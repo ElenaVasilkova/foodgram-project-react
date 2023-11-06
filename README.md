@@ -1,5 +1,7 @@
 # Проект Foodgram - продуктовый помощник
 
+Сайт расположен по адресу https://foodgram-eva.ddns.net// логин: admin@pochta.ru пароль: admin
+
 ## Описание
 
 Проект "Foodgram" предназначен для публикации рецептов приготовления различных блюд. "Foodgram" создан в качестве выпускного проекта курса [Python-разработчик](https://practicum.yandex.ru/backend-developer/) от [Яндекс.Практикум.](https://practicum.yandex.ru/)

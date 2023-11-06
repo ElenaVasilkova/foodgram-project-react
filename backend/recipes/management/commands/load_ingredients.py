@@ -9,7 +9,7 @@ DATA_ROOT = os.path.join(settings.BASE_DIR, 'data')
 
 
 class Command(BaseCommand):
-    help = 'Загрузка из csv файла'
+    help = 'Загрузка ингредиентов из файла ingredients.csv'
 
     def add_arguments(self, parser):
         parser.add_argument('filename', default='ingredients.csv', nargs='?',
@@ -23,9 +23,15 @@ class Command(BaseCommand):
                 encoding='utf-8'
             ) as file:
                 reader = csv.DictReader(file)
-                Ingredient.objects.bulk_create(
-                    Ingredient(**data) for data in reader)
+                for data in reader:
+                    name, measurement_unit = data
+                    Ingredient.objects.get_or_create(
+                        name=name,
+                        measurement_unit=measurement_unit
+                    )
             self.stdout.write(self.style.SUCCESS(
                 'Ингредиенты успешно загруженны!'))
         except FileNotFoundError:
-            raise CommandError('Файл отсутствует в директории data')
+            raise CommandError(
+                'Добавьте файл ingredients.csv в директорию /data'
+            )
