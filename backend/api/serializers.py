@@ -204,10 +204,10 @@ class RecipeSerializer(serializers.ModelSerializer):
     def validate(self, data):
         """Проверка данных на уровне сериализатора."""
         ingredients = data.get('ingredients')
-        if not ingredients:
+        '''if not ingredients:
             raise serializers.ValidationError(
                 'Добавьте минимум один ингредиент для рецепта.'
-            )
+            )'''
         added_ingredients = []
         for ingredient in ingredients:
             try:
