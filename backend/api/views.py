@@ -8,7 +8,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from users.models import Subscribe, User
+from users.models import Subscribe
 
 from .creatinglist import collect_shopping_cart
 from .filters import IngredientFilter, RecipeFilter
@@ -58,7 +58,7 @@ class SubscribePostDeleteViewSet(viewsets.ModelViewSet):
     search_fields = ('username', 'email')
     pagination_class = LimitPageNumberPagination
     permission_classes = (IsOwnerOrReadOnly,)
-    http_method_names = ['post', 'delete',]
+    http_method_names = ['post', 'delete']
 
     def create(self, request, author_id):
         user = request.user
@@ -167,7 +167,7 @@ class FavoriteRecipeViewSet(RecipesViewSet):
     """Вьюсет для списка избранного."""
     queryset = Recipe.objects.all()
     serializer_class = FavoriteSubscribeSerializer
-    http_method_names = ['post', 'delete',]
+    http_method_names = ['post', 'delete']
     permission_classes = (IsOwnerOrReadOnly,)
 
     def perform_create(self, serializer):
@@ -210,7 +210,7 @@ class ShoppingcartViewSet(RecipesViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     permission_classes = (IsOwnerOrReadOnly,)
-    http_method_names = ['post', 'delete',]
+    http_method_names = ['post', 'delete']
 
     def create(self, request, recipe_id):
         user = self.request.user
@@ -252,7 +252,7 @@ class ShoppingcartListViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = FavoriteSubscribeSerializer
     filterset_class = RecipeFilter
-    http_method_names = ['get', 'head',]
+    http_method_names = ['get', 'head']
 
     def list(self, request):
         user = request.user
