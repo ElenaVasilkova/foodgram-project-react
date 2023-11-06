@@ -151,17 +151,17 @@ jobs:
         script: |
           cd foodgram
           
-          sudo docker compose -f docker-compose.production.yml pull
+          docker compose -f docker-compose.production.yml pull
           
-          sudo docker compose -f docker-compose.production.yml down
-          sudo docker compose -f docker-compose.production.yml up -d
+          docker compose -f docker-compose.production.yml down
+          docker compose -f docker-compose.production.yml up -d
           
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
+          docker compose -f docker-compose.production.yml exec backend python manage.py migrate
+          docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
 
           echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(${{ secrets.DJANGO_ADM_EMAIL }}, ${{ secrets.DJANGO_ADM_USERNAME }}, ${{ secrets.DJANGO_ADM_FNAME }}, ${{ secrets.DJANGO_ADM_SNAME }}, ${{ secrets.DJANGO_ADM_PASSWORD }})" | python manage.py shell
-          sudo docker compose -f docker-compose.production.yml exec -T backend python manage.py load_tags
-          sudo docker compose -f docker-compose.production.yml exec -T backend python manage.py load_ingredients
+          docker compose -f docker-compose.production.yml exec -T backend python manage.py load_tags
+          docker compose -f docker-compose.production.yml exec -T backend python manage.py load_ingredients
   
   send_message:
     runs-on: ubuntu-latest
