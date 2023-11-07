@@ -78,7 +78,7 @@ docker-compose exec backend python manage.py load_tags
 ```
 
 - Стандартная админ-панель Django доступна по адресу [`https://localhost/admin/`](https://localhost/admin/)
-- Документация к проекту доступна по адресу [`https://localhost/api/docs/`](`https://localhost/api/docs/`)
+- Документация к проекту доступна по адресу [`https://localhost/api/docs/`](https://localhost/api/docs/)
 
 ---
 
