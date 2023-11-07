@@ -9,26 +9,27 @@ services:
   db:
     image: postgres:13.10
     restart: always
-    env_file: 
-      - .env
+    env_file: .env
+    container_name: foodgram_db
     volumes:
       - pg_data:/var/lib/postgresql/data/
 
   backend:
     image: evadock/foodgram_backend:latest
     restart: always
-    env_file:
-      - .env
+    env_file: .env
+    container_name: foodgram_backend
     volumes:
-      - static:/app/static/
-      - media:/app/media/
+      - static:/backend_static
+      - media:/media_recipes
     depends_on:
       - db
 
   frontend:
     image: evadock/foodgram_frontend:latest
-    env_file: 
-      - .env
+    env_file: .env
+    container_name: foodgram_frontend
+    command: cp -r /app/build/. /static/
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
@@ -37,17 +38,19 @@ services:
   nginx:
     image: evadock/foodgram_infra:latest
     restart: always
+    env_file: .env
+    container_name: foodgram_gateway
     ports:
-      - "8080:80"
+      - "8000:80"
     volumes:
-      - ./nginx/:/etc/nginx/conf.d/     # ???
+    #  - ./nginx/:/etc/nginx/conf.d/     # ???
     #  - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
-      - static:/etc/nginx/html/static/  # ???
+      - static:/etc/nginx/html/  # ???
       - media:/etc/nginx/html/media/    # ???
+    #  - static:/static
+    #  - media:/media
     depends_on:
       - backend
       - frontend
-    env_file:
-      - .env
