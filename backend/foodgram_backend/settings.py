@@ -5,7 +5,10 @@ import os
 from pathlib import Path
 
 import sentry_sdk
+from dotenv import load_dotenv
 from sentry_sdk.integrations.django import DjangoIntegration
+
+load_dotenv()
 
 DEFAULT_PAGE_SIZE: int = 6
 
@@ -20,11 +23,11 @@ sentry_sdk.init(
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'None')
+SECRET_KEY = os.getenv('SECRET_KEY', 'Error SECRET_KEY')
 
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'True'
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 # ALLOWED_HOSTS = ['127.0.0.1']
 
 AUTH_USER_MODEL = 'users.User'
@@ -83,8 +86,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.getenv('POSTGRES_DB', 'django'),
         'USER': os.getenv('POSTGRES_USER', 'django'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'django'),
+        'HOST': os.getenv('DB_HOST', 'db'),
         'PORT': os.getenv('DB_PORT', 5432)
     }
 }
