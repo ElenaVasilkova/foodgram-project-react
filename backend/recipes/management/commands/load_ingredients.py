@@ -1,37 +1,22 @@
 import csv
-import os
 
-from django.conf import settings
-from django.core.management import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from recipes.models import Ingredient
-
-DATA_ROOT = os.path.join(settings.BASE_DIR, 'data')
 
 
 class Command(BaseCommand):
-    help = 'Загрузка ингредиентов из файла ingredients.csv'
-
-    def add_arguments(self, parser):
-        parser.add_argument('filename', default='ingredients.csv', nargs='?',
-                            type=str)
 
     def handle(self, *args, **options):
-        try:
-            with open(
-                os.path.join(DATA_ROOT, options['filename']),
-                'r',
-                encoding='utf-8'
-            ) as file:
-                reader = csv.DictReader(file)
-                for data in reader:
-                    name, measurement_unit = data
-                    Ingredient.objects.get_or_create(
-                        name=name,
-                        measurement_unit=measurement_unit
-                    )
-            self.stdout.write(self.style.SUCCESS(
-                'Ингредиенты успешно загруженны!'))
-        except FileNotFoundError:
-            raise CommandError(
-                'Добавьте файл ingredients.csv в директорию /data'
-            )
+        self.import_ingredients()
+        print('Загрузка ингредиентов завершена.')
+
+    def import_ingredients(self, file='ingredients.csv'):
+        print(f'Загрузка данных из {file}')
+        path = f'./data/{file}'
+        with open(path, newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                Ingredient.objects.update_or_create(
+                    name=row[0],
+                    measurement_unit=row[1]
+                )
