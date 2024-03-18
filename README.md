@@ -1,7 +1,5 @@
 # Проект Foodgram - продуктовый помощник
 
-Сайт расположен по адресу https://foodgram-eva.ddns.net/ 
-
 Логин: admin@pochta.ru  
 
 Пароль: admin
